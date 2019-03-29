@@ -3,16 +3,24 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 
+const config = require('./config');
+const { sequelize } = require('./models');
+const authRoutes = require('./routes/auth.js');
+
 const app = express();
 
+// middleware
 app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(cors());
 
-app.get('/status', (req, res) => {
-  res.send({
-    message: 'Hello World'
-  });
-});
+// routes
+app.use('/auth', authRoutes);
 
-app.listen(process.env.PORT || 5555);
+// sequelize
+sequelize.sync().then(() => {
+  // start listening
+  app.listen(config.port, () =>
+    console.log(`Started server on port ${config.port}`)
+  );
+});
